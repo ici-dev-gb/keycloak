@@ -5,15 +5,20 @@
   </head>
   <body>
     <script type="module">
-      // Check if the browser has granted us access to 3rd-party storage (such as cookies).
-      const hasAccess = await hasStorageAccess();
+      attemptCookie();
 
-      if (hasAccess) {
-        // If so, attempt to place a cookie to test this assumption.
-        attemptWithTestCookie();
-      } else {
-        // Otherwise, signal that 3rd-party access is not supported.
-        signalSupport(false);
+      // Encapsulate the code in an async to avoid syntax error on old javascript
+      async function attemptCookie() {
+        // Check if the browser has granted us access to 3rd-party storage (such as cookies).
+        const hasAccess = await hasStorageAccess();
+
+        if (hasAccess) {
+          // If so, attempt to place a cookie to test this assumption.
+          attemptWithTestCookie();
+        } else {
+          // Otherwise, signal that 3rd-party access is not supported.
+          signalSupport(false);
+        }
       }
 
       async function hasStorageAccess() {
@@ -26,7 +31,8 @@
 
       function attemptWithTestCookie() {
         // Place a cookie to test whether we can access cookies from 3rd-party storage.
-        document.cookie = "KEYCLOAK_3P_COOKIE_SAMESITE=supported; Max-Age=60; SameSite=None; Secure";
+        document.cookie =
+          "KEYCLOAK_3P_COOKIE_SAMESITE=supported; Max-Age=60; SameSite=None; Secure";
         document.cookie = "KEYCLOAK_3P_COOKIE=supported; Max-Age=60";
 
         // Then redirect to the page where we will read these cookies to confirm this.
@@ -35,7 +41,10 @@
 
       function signalSupport(isSupported) {
         // Signal 3rd-party access support to the page embedding this iframe.
-        window.parent.postMessage(isSupported ? "supported" : "unsupported", "*");
+        window.parent.postMessage(
+          isSupported ? "supported" : "unsupported",
+          "*"
+        );
       }
     </script>
   </body>
